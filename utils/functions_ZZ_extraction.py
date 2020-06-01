@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import math
+import os
 import matplotlib.pyplot as plt
 from scipy.integrate import simps
 
@@ -10,6 +11,39 @@ def find_indices(lst, condition):
     """return the indices of elements in lst fitting the condition"""
     return [i for i, elem in enumerate(lst) if condition(elem)]
 
+
+def create_analysis_env(output_path, fishlabel):
+    for folder_name in ['dataset', 'np_array', 'csv_files', 'fig']:
+        try:
+            os.mkdir(output_path + folder_name + '/')
+        except FileExistsError:
+            if folder_name == 'dataset':
+                print('IDE already set up')
+            else:
+                pass
+        else:
+            print('First IDE set up')
+        try:
+            os.mkdir(output_path + folder_name + '/' + fishlabel)
+        except FileExistsError:
+            if folder_name == 'dataset':
+                print('Fish already analyzed')
+            else:
+                pass
+
+
+def create_analysis_log():
+    analysis_log = {'depth': np.nan,
+                    'filename': np.nan,
+                    'index': np.nan,
+                    'n_bouts': np.nan,
+                    'condition_ma': np.nan,
+                    'removed_frames': [np.nan],
+                    'baseline_lim': (np.nan, np.nan),
+                    'midline': np.nan,
+                    'date_analysis': np.nan,
+                    'window_max_dff': 1
+                    }
 
 def bout_num(frame_i, structure, NBout):
     """returns the bout number that happened at the frame indexed frame_i
