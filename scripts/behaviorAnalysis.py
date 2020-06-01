@@ -18,12 +18,11 @@ classification_path = '/home/mathilde.lapoix/Bureau/boutsClustering/martinMathil
 
 # LOAD CONFIG FILES, STRUCTS
 
-
 trial = str(input('Trial num ?'))
 
 trials_correspondence = load_trials_correspondence(output_path, fishlabel)
-analysis_log = load_analysis_log(output_path + 'logs/', fishlabel, trial)
-experiment = load_experiment(output_path + 'exps/', fishlabel)
+analysis_log = load_analysis_log(output_path, fishlabel, trial)
+experiment = load_experiment(output_path, fishlabel)
 experiment = experiment[0]
 analysis_log['date_analysis'] = time.strftime("%d/%m/%Y")
 

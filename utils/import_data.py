@@ -11,26 +11,18 @@ class ReAnalyze(Exception):
 def load_experiment(path, fishlabel):
     """Loads the experiment object corresponding the the Exp class. This object contains all the info about the
     experiment performed on the fish adressed by fishlabel."""
-    with open(path + fishlabel + '_exp', 'rb') as handle:
+    with open(path + 'exps/' + fishlabel + '_exp', 'rb') as handle:
         experiment = pickle.load(handle)
     return experiment
 
 
 def load_analysis_log(path, fishlabel, trial):
     try:
-        with open(path + fishlabel + '_' + trial + '_analysis_log', 'rb') as handle:
+        with open(path + 'logs/' + fishlabel + '_' + trial + '_analysis_log', 'rb') as handle:
             analysis_log = pickle.load(handle)
     except FileNotFoundError:
-        print('Did not find any analysis log in the specified path. Creating a new one.')
-        analysis_log = {'depth': np.nan,
-                        'filename': np.nan,
-                        'condition_ma': np.nan,
-                        'removed_frames': [np.nan],
-                        'baseline_lim': (np.nan, np.nan),
-                        'midline': np.nan,
-                        'date_analysis': np.nan,
-                        'window_max_dff': 1
-                        }
+        print('Did not find analysis log file in ', path + 'logs/' + fishlabel + '_' + trial + '_analysis_log')
+        analysis_log = np.nan
     return analysis_log
 
 

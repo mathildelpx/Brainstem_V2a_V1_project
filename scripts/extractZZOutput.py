@@ -18,7 +18,7 @@ numWell = 0
 
 # load parameters of experiment
 try:
-    experiment = load_experiment(output_path + 'exps/', fishlabel)
+    experiment = load_experiment(output_path, fishlabel)
     experiment = experiment[0]
 except FileNotFoundError:
     print('Experiment for this fish was not found. Please create Exp object to reference experiment parameters.')
@@ -30,7 +30,7 @@ trials_files.sort()
 print(trials_files)
 
 # Create folders to store analysis
-fct.create_analysis_env(output_path, fishlabel)
+analysis_log = fct.create_analysis_env(output_path, fishlabel)
 
 pd.options.mode.chained_assignment = None
 # Load txt files from a folder

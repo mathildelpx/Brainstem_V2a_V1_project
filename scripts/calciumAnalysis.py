@@ -30,9 +30,9 @@ output_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/ML_pipeline_outpu
 data_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/suite2p_output/'
 reanalyze = False
 
-analysis_log = load_analysis_log(output_path + 'logs/', fishlabel, trial)
-experiment = load_experiment(output_path + 'exps/', fishlabel)
-experiment = experiment[0]
+analysis_log = load_analysis_log(output_path, fishlabel, trial)
+experiment = load_experiment(output_path, fishlabel)[0]
+# experiment = experiment[0]
 
 for foldername in ['dataset', 'fig', 'np_array', 'csv_files']:
     try:

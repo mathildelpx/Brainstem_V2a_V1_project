@@ -44,6 +44,8 @@ def create_analysis_log():
                     'date_analysis': np.nan,
                     'window_max_dff': 1
                     }
+    return analysis_log
+
 
 def bout_num(frame_i, structure, NBout):
     """returns the bout number that happened at the frame indexed frame_i
