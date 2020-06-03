@@ -4,6 +4,7 @@ from PIL import Image, ImageSequence
 import time
 import pickle
 import imageio
+from scipy.stats import zscore
 from utils.import_data import *
 from utils.functions_calcium_analysis import *
 
@@ -44,19 +45,57 @@ baseline_array = tiff_array[:,:,1:20]
 
 baseline_value = np.zeros(tiff_array.shape)
 
+values = []
+dff_array1 = np.zeros(tiff_array.shape)
 for i in range(tiff_array.shape[0]):
     for j in range(tiff_array.shape[1]):
-        value = np.median(baseline_array[i,j,:])
-        if value == 0:
-            value = 0.0001
+        value = np.mean(baseline_array[i,j,:])
         baseline_value[i, j, :] = value
+        values.append(value)
+        try:
+            dff_array1[i,j,:] = ((tiff_array[i,j,:]-value)/value)*100
+        except ZeroDivisionError:
+            dff_array1[i,j,:] = 0
 
-dff_array = ((tiff_array-baseline_value)/baseline_value)*1000
+dff_array = (tiff_array-baseline_value)/baseline_value
+pixel_traces = zscore(tiff_array.reshape((-1, tiff_array.shape[2])))
+zscore_array = pixel_traces.reshape(tiff_array.shape)
 
 # save dff array as an image
 dff_video = []
-for array in range(846):
+zscore_video = []
+
+w = imageio.get_writer('test_zscore2.tif', format='TIFF', mode='I'
+                       )
+y = imageio.get_writer('test_dff2.tif', format='TIFF', mode='I'
+                       )
+
+for array in range(tiff_array.shape[2]):
     frame = Image.fromarray(dff_array[:,:,array].astype(np.uint8))
     dff_video.append(frame)
 
 imageio.mimsave('test_dff_190104_F2_8.avi', dff_video, format='avi')
+
+for array in range(tiff_array.shape[2]):
+    frame = Image.fromarray(zscore_array[:,:,array].astype(np.uint8))
+    zscore_video.append(frame)
+    w.append_data(zscore_array[:,:,array].astype(np.uint8))
+    y.append_data(dff_array[:,:,array].astype(np.uint8))
+
+imageio.mimsave('test_zscore_190104_F2_8.avi', dff_video, format='avi')
+w.close()
+
+
+def bout_cut_image(bout, array, bouts, exp, path):
+    try:
+        os.mkdir(path + str(bout))
+    except FileExistsError:
+        pass
+    y = imageio.get_writer(path + str(bout) + '/dff.tif', format='TIFF', mode='I'
+                           )
+    start = math.floor((bouts[bout].start / exp.fps_beh) * exp.fps_2p)
+    end = int(start + 2 * exp.fps_2p)
+    for i in range(start, end + 1):
+        y.append_data(array[:,:,i].astype(np.uint8))
+    y.close()
+
