@@ -12,15 +12,19 @@ from utils.plotting import *
 
 pd.options.mode.chained_assignment = None
 
-fishlabel = '190104_F2'
+fishlabel = '191008_F1'
 output_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/ML_pipeline_output/'
-classification_path = '/home/mathilde.lapoix/Bureau/boutsClustering/martinMathilde3/output_dataframe'
+classification_path = '/home/mathilde.lapoix/Bureau/boutsClusteringMathilde/mathildeReload/output_dataframe'
 
 # LOAD CONFIG FILES, STRUCTS
 
 trial = str(input('Trial num ?'))
 
-trials_correspondence = load_trials_correspondence(output_path, fishlabel)
+try:
+    trials_correspondence = load_trials_correspondence(output_path, fishlabel)
+except (FileNotFoundError, EOFError):
+    pass
+
 analysis_log = load_analysis_log(output_path, fishlabel, trial)
 experiment = load_experiment(output_path, fishlabel)
 experiment = experiment[0]
@@ -44,8 +48,12 @@ else:
 fps_beh = experiment.fps_beh
 fps_2p = experiment.fps_2p
 # import pickles files for one fish
-raw_frame_dataset = pd.read_pickle(output_path + 'dataset/' + fishlabel + '/' + fishlabel + '_raw_frame_dataset_' + trial)
-raw_bout_dataset = pd.read_pickle(output_path + 'dataset/' + fishlabel + '/' + fishlabel + '_raw_bout_dataset_' + trial)
+try:
+    raw_frame_dataset = pd.read_pickle(output_path + 'dataset/' + fishlabel + '/' + trial + '/raw_frame_dataset_' + str(trial))
+    raw_bout_dataset = pd.read_pickle(output_path + 'dataset/' + fishlabel + '/' + trial + '/raw_bout_dataset_' + str(trial))
+except FileNotFoundError:
+    raw_frame_dataset = pd.read_pickle(output_path + 'dataset/' + fishlabel + '/' + fishlabel + '_raw_frame_dataset_' + trial)
+    raw_bout_dataset = pd.read_pickle(output_path + 'dataset/' + fishlabel + '/' + fishlabel + '_raw_bout_dataset_' + trial)
 nBouts=len(raw_bout_dataset)
 raw_bout_dataset['Keep'] = 1
 analyzed_bout_dataset = raw_bout_dataset.copy()
@@ -70,7 +78,9 @@ analyzed_bout_dataset['category'] = pd.Series(analyzed_bout_dataset.index).apply
 
 
 # should remove this step in further analysis
-if not analyzed_bout_dataset['abs_Max_Bend_Amp']:
+try:
+    analyzed_bout_dataset['abs_Max_Bend_Amp']
+except KeyError:
     analyzed_bout_dataset['abs_Max_Bend_Amp'] = abs(analyzed_bout_dataset.Max_Bend_Amp)
 
 for i in range(1, 12):
@@ -101,7 +111,10 @@ for i, bout in enumerate(range(nBouts)):
     else:
         try:
             color = colors[int(classification)+2]
-        except ValueError:
+        # if bout was not classified (ValueError) or flagged (IndexError)
+        except (ValueError, IndexError):
+            print('bout:', bout)
+            print('class:', classification)
             color = 'black'
     # plot each bout from start, with a fixed time scale (take the max bout duration to scale every other).
     start = analyzed_bout_dataset.BoutStartVideo[bout]
