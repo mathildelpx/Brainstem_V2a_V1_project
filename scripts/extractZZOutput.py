@@ -8,7 +8,7 @@ import pickle
 from utils import functions_ZZ_extraction as fct
 from utils.import_data import *
 
-fishlabel = '190104_F2'
+fishlabel = '191008_F1'
 output_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/ML_pipeline_output/'
 raw_data_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/ZZ_output/'
 # As we use the code used for experiments of multiple wells,
@@ -33,6 +33,9 @@ print(trials_files)
 analysis_log = fct.create_analysis_env(output_path, fishlabel)
 
 pd.options.mode.chained_assignment = None
+
+naming_format = int(input('Naming format ?       1: DATE_FX_P_XXum     2: DATE_FX_TRIAL      3: DATE_FX_TRIAL_XXum'))
+
 # Load txt files from a folder
 for index, filename in enumerate(trials_files):
     # Necessity given the struct of the output
@@ -40,9 +43,19 @@ for index, filename in enumerate(trials_files):
     numBout = 0
 
     print(filename)
-    depth = filename.split("_")[-1]
-    depth = depth.split(".")[0]
-    trial = filename.split("_")[-2]
+
+    if naming_format in [1, 3]:
+        depth = filename.split("_")[-1]
+        depth = depth.split(".")[0]
+        if naming_format == 3:
+            trial = filename.split("_")[-2]
+        else:
+            trial = depth[0:2]
+        if len(depth.split("-")) > 1:
+            trial = trial + '-1'
+    if naming_format == 2:
+        trial = filename.split("_")[-1]
+        trial = trial.split(".")[0]
     print("trial ", trial, '\n index', index)
     print("depth", depth)
 
