@@ -1,6 +1,6 @@
-# RSN_project
+# Brainstem_V2a_V1_project
 
-Pipeline for data extraction and analysis oof calcium imaging experiments performed on head-embedded/Tail-free ZebraFish.
+Pipeline for behavior and calcium imaging analysis from experiments performed on head-embedded/Tail-free ZebraFish.
 Written in Python.
 
 IDE used is [PyCharm-Community](https://www.jetbrains.com/pycharm/)
@@ -20,24 +20,22 @@ Please set up your interpreter to load following packages (each of them are alre
 
 You can also check out the documentation following the links.
 
+## Overall organisation
 
-### extract_raw_data_fish.py
+### scripts
 
-From the software ZebraZoom outputs, create datasets with raw data and some kinematic parameters calculated.
+Is a python directory with python scripts, will perform the final action, they are the one to run.
+
+### utils
+
+Is a python directory with different python scritps used as libraries.   
+A library is a list of functions, each of this function is supposed to perform **one** action (in the legendary world of good coding practicing land).  
+You will see them being called at the beginning the the python scripts in *scripts* as **from utils.library1 import function1**. 
   
-### Functions_ZZ_extraction.py 
-
-*Library* of functions used to extract and calculate parameters assigned in DataFrames of **Extract_raw_data_fish.py
   
-### behavior_analysis.py
+Mostly, you have 2 types of librairies:
+* Transversal, with functions being used recursively, as *import_data.py* or *plotting*.
+* Applied to a specific script, as *functions_ZZ_extraction.py* being called exclusively by the script *extractZZOutput.py*.  
 
-Correct raw data and assign category to bouts.
-  
-### Calcium_analysis.py
-
-DFF calculation, comparison with behavior classified by type. 
-  
-### Functions_analysis.py
-
-*Library* of functions used both for **Behavior_analysis.py** and **DFF_analysis_finale.py**
+## Scripts description
 
