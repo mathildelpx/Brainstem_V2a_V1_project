@@ -42,8 +42,11 @@ class Exp:
 
         # frame rate of 2P acquisition
         fps_2p = fishinfo['FrameRate2P']
-        print('fps 2p is ', float(fps_2p))
-        a = str(input('Ok ? press anything for no'))
+        try:
+            print('fps 2p is ', float(fps_2p))
+            a = str(input('Ok ? press anything for no'))
+        except ValueError:
+            pass
         if a:
             fps_2p = str(input('enter camera speed for 2p:'))
         self.fps_2p = float(fps_2p)
