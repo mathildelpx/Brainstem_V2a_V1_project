@@ -8,7 +8,7 @@ import pickle
 from utils import functions_ZZ_extraction as fct
 from utils.import_data import *
 
-fishlabel = '191008_F1'
+fishlabel = '190220_F2'
 output_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/ML_pipeline_output/'
 raw_data_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/ZZ_output/'
 # As we use the code used for experiments of multiple wells,
@@ -56,6 +56,7 @@ for index, filename in enumerate(trials_files):
     if naming_format == 2:
         trial = filename.split("_")[-1]
         trial = trial.split(".")[0]
+        depth = np.nan
     print("trial ", trial, '\n index', index)
     print("depth", depth)
 
@@ -211,14 +212,19 @@ if NBout >= 25:
 else:
     for i, index in enumerate(range(16)):
         plt.subplot(4, 4, i + 1)
-        plt.plot(df_frame_all.Tail_angle[df_bout_all.BoutStart_summed[index]:df_bout_all.BoutEnd_summed[index]])
-        plt.plot(df_frame_all.Bend_Amplitude[df_bout_all.BoutStart_summed[index]:df_bout_all.BoutEnd_summed[index]],
-                 'rx', markersize=1.5)
-        plt.ylim(-50, 50)
-        plt.title(index)
-        if i == 12:
-            plt.xlabel('frame')
-            plt.ylabel('Tail angle')
+        try:
+            plt.plot(df_frame_all.Tail_angle[df_bout_all.BoutStart_summed[index]:df_bout_all.BoutEnd_summed[index]])
+            plt.plot(df_frame_all.Bend_Amplitude[df_bout_all.BoutStart_summed[index]:df_bout_all.BoutEnd_summed[index]],
+                    'rx', markersize=1.5)
+            plt.ylim(-50, 50)
+            plt.title(index)
+            if i == 12:
+                plt.xlabel('frame')
+                plt.ylabel('Tail angle')
+        # raises KeyError when you don't have enough bout,
+        # just passing here so it stops plotting when bout max is reached
+        except KeyError:
+            pass
     plt.savefig(output_path + 'fig/' + fishlabel + '/Tail_angle_traces.pdf', transparent=True)
 
 # Save the resume file for this fish with info on the experiments and trials.
