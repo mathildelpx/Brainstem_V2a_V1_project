@@ -12,9 +12,9 @@ from utils.plotting import *
 
 pd.options.mode.chained_assignment = None
 
-fishlabel = '191008_F1'
+fishlabel = '190515_F2'
 output_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/ML_pipeline_output/'
-classification_path = '/home/mathilde.lapoix/Bureau/boutsClusteringMathilde/mathildeReload/output_dataframe'
+classification_path = '/home/mathilde.lapoix/Bureau/boutsClusteringMathilde/mathildeFinal/output_dataframe'
 
 # LOAD CONFIG FILES, STRUCTS
 
@@ -164,13 +164,15 @@ plot_violin_kinematics_cat(df_bouts, 2, 3, output_path, fishlabel, trial)
 
 
 # Build behavior trace for suite2p
-TA = np.zeros((len(raw_frame_dataset), 2))
-TA[:,0] = raw_frame_dataset.Time_index
-TA[:,1] = raw_frame_dataset.Tail_angle
-old_fq = str(input('Type in time series format the frequency of behavior acquisition: (example: 0.005S'))
-new_fq = str(input('Type in time series format the new frequency you want to rescale the behavior to:'))
-nFrames = int(input('Number of frames in calcium imaging ?'))
-behavior_trace = behavior_resampled(TA, old_fq, new_fq, nFrames, output_path + 'np_array/' + fishlabel + '/' + trial + '/')
+ta_trace = str(input('Do you want to save TA array for suite2P visualisation? y/()'))
+if ta_trace:
+    TA = np.zeros((len(raw_frame_dataset), 2))
+    TA[:,0] = raw_frame_dataset.Time_index
+    TA[:,1] = raw_frame_dataset.Tail_angle
+    old_fq = str(input('Type in time series format the frequency of behavior acquisition: (example: 0.005S'))
+    new_fq = str(input('Type in time series format the new frequency you want to rescale the behavior to:'))
+    nFrames = int(input('Number of frames in calcium imaging ?'))
+    behavior_trace = behavior_resampled(TA, old_fq, new_fq, nFrames, output_path + 'np_array/' + fishlabel + '/' + trial + '/')
 
 # Create a list of objects from class Bout and save it
 create_bout_objects(df_bouts, raw_frame_dataset, output_path + 'dataset/' + fishlabel + '/' + trial + '/')

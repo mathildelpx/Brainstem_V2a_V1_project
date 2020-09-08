@@ -280,7 +280,7 @@ def kdensity_plot_per_cat(df_bouts_all):
         .add_legend()
 
 
-def plot_violin_kinematics_cat(df_bouts, nTrials, nFish):
+def plot_violin_kinematics_cat2(df_bouts, nTrials, nFish):
     fig = make_subplots(rows=2, cols=3,
                         subplot_titles=("number osc", "bout duration", "abs max bend", "extremes amp", "TA integral", "mean TBF"))
     fig.add_trace(go.Violin(y=df_bouts['Number_Osc'], x=df_bouts['category'], points='all'), row=1, col=1)
@@ -293,12 +293,20 @@ def plot_violin_kinematics_cat(df_bouts, nTrials, nFish):
     fig.update_layout(title_text='Kinematics of bouts in each category (based on automatic classification) for ' +
                                  str(len(df_bouts)) + ' bouts, in ' + str(nTrials) + ' trials, in ' +
                                  str(nFish) + ' fish',
-                      showlegend=False)
+                      showlegend=False,
+                      xaxis={'categoryorder': 'array', 'categoryarray': ['F', 'L', 'R', 'O', 'Exc']},
+                      xaxis1={'categoryorder': 'array', 'categoryarray': ['F', 'L', 'R', 'O', 'Exc']},
+                      xaxis2={'categoryorder': 'array', 'categoryarray': ['F', 'L', 'R', 'O', 'Exc']},
+                      xaxis3={'categoryorder': 'array', 'categoryarray': ['F', 'L', 'R', 'O', 'Exc']},
+                      xaxis4={'categoryorder': 'array', 'categoryarray': ['F', 'L', 'R', 'O', 'Exc']},
+                      xaxis5={'categoryorder': 'array', 'categoryarray': ['F', 'L', 'R', 'O', 'Exc']},
+                      xaxis6={'categoryorder': 'array', 'categoryarray': ['F', 'L', 'R', 'O', 'Exc']},
+                      )
     fig.update_xaxes(title_text="category", row=1, col=1)
     plot(fig, filename='violin_kinematics_per_cat.html')
 
 
-def plot_violin_kinematics_class(df_bouts, nTrials, nFish):
+def plot_violin_kinematics_class2(df_bouts, nTrials, nFish):
     fig = make_subplots(rows=2, cols=3,
                         subplot_titles=("number osc", "bout duration", "abs max bend", "extremes amp", "TA integral", "mean TBF"))
     fig.add_trace(go.Violin(y=df_bouts['Number_Osc'], x=df_bouts['classification'], points='all'), row=1, col=1)

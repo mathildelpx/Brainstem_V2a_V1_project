@@ -4,7 +4,7 @@ import pickle
 from utils.class_lib import Exp
 
 
-fishlabel = '191022_F1'
+fishlabel = '190220_F2'
 
 data_path = '/network/lustre/iss01/wyart/rawdata/2pehaviour/' + fishlabel + '/Calcium_imaging/'
 csv_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/summaryData_MartinMathilde.csv'

@@ -6,6 +6,19 @@ import matplotlib.pyplot as plt
 from scipy.integrate import simps
 
 
+def load_zz_results(trial_path):
+    try:
+        for file in os.listdir(trial_path):
+            if file.startswith('results') and file.endswith('.txt'):
+                txt_file = file
+        filepath = trial_path + '/' + txt_file
+    except (FileNotFoundError, NotADirectoryError):
+        print('No ZZ output found at this path:', trial_path)
+        print('Fome')
+        filepath = False
+    return filepath
+
+
 # function to return a list of index corresponding to element in a list (lst) filling a condition
 def find_indices(lst, condition):
     """return the indices of elements in lst fitting the condition"""

@@ -5,8 +5,7 @@ def combineDataFrames(filesList, path):
     trials_list = list(filesList['trial_id'])
     for i, trial_id in enumerate(trials_list):
         print(trial_id)
-        naming_format = int(
-            input('Naming format ?       1: DATE_FX_P_XXum     2: DATE_FX_TRIAL      3: DATE_FX_TRIAL_XXum'))
+        naming_format = int(filesList[filesList['trial_id'] == trial_id]['naming_format'])
         if naming_format in [1, 3]:
             depth = trial_id.split("_")[-1]
             depth = depth.split(".")[0]

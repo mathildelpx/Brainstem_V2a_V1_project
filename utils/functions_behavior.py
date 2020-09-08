@@ -15,7 +15,8 @@ def get_classification(bouts, classification_df):
     """
     classification = bouts.copy()
     print('nb of clusters:', np.nanmax(classification_df['classification']))
-    missing_class = int(input('How to flag the bouts with missing clustering (excluded bouts)'))
+    missing_class = 4
+    # missing_class = int(input('How to flag the bouts with missing clustering (excluded bouts)'))
     for bout in bouts:
         df_single_bout = classification_df[classification_df['NumBout'] == float(bout)]
         try:
