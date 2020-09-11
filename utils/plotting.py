@@ -5,12 +5,14 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from scipy.stats import zscore
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
 from utils.get_kinematics import get_frames_time_points, tau_calculation
 from utils.import_data import load_output_struct, load_suite2p_outputs, load_config_file
 import plotly.express as px
+from tools.list_tools import *
 
 
 def plot_single_bout_trace(bout, df_frame, df_bout, fq, op):
@@ -130,38 +132,98 @@ def plot_roi_masks(fishlabel, trial, file_path, output_path, backgroundPath):
     return fig_heatmap
 
 
-def plot_violin_kinematics_cat(df_bouts, rows, cols, output_path, fishlabel, trial):
+def plot_violin_kinematics_cat(df_bouts, rows, cols, output_path, fishlabel, depth, trial, palette):
     fig = make_subplots(rows=rows, cols=cols,
                         subplot_titles=("number osc", "bout duration", "abs max bend", "extremes amp", "TA integral", "mean TBF"))
-    fig.add_trace(go.Violin(y=df_bouts['Number_Osc'], x=df_bouts['category'], points='all'), row=1, col=1)
-    fig.add_trace(go.Violin(y=df_bouts['Bout_Duration'], x=df_bouts['category'], points='all'), row=1, col=2)
-    fig.add_trace(go.Violin(y=df_bouts['abs_Max_Bend_Amp'], x=df_bouts['category'], points='all'), row=1, col=3)
-    fig.add_trace(go.Violin(y=df_bouts['Max_Bend_Amp'], x=df_bouts['category'], points='all'), row=2, col=1)
-    fig.add_trace(go.Violin(y=df_bouts['Min_Bend_Amp'], x=df_bouts['category'], points='all'), row=2, col=1)
-    fig.add_trace(go.Violin(y=df_bouts['Integral_TA'], x=df_bouts['category'], points='all'), row=2, col=2)
-    fig.add_trace(go.Violin(y=df_bouts['mean_TBF'], x=df_bouts['category'], points='all'), row=2, col=3)
+    for category in get_unique_elements(df_bouts.category):
+
+        fig.add_trace(go.Violin(y=df_bouts['Number_Osc'][df_bouts['category'] == category],
+                                x=df_bouts['category'][df_bouts['category'] == category],
+                                points='all',
+                                hoverinfo='text',
+                                text=list(df_bouts.index),
+                                line_color=palette[category]),
+                      row=1, col=1)
+
+        fig.add_trace(go.Violin(y=df_bouts['Bout_Duration'][df_bouts['category'] == category],
+                                x=df_bouts['category'][df_bouts['category'] == category],
+                                points='all',
+                                hoverinfo='text',
+                                text=list(df_bouts.index),
+                                line_color=palette[category]),
+                      row=1, col=2)
+
+        fig.add_trace(go.Violin(y=df_bouts['abs_Max_Bend_Amp'][df_bouts['category'] == category],
+                                x=df_bouts['category'][df_bouts['category'] == category],
+                                points='all',
+                                hoverinfo='text',
+                                text=list(df_bouts.index),
+                                line_color=palette[category]),
+                      row=1, col=3)
+
+        fig.add_trace(go.Violin(y=df_bouts['Max_Bend_Amp'][df_bouts['category'] == category],
+                                x=df_bouts['category'][df_bouts['category'] == category],
+                                points='all',
+                                hoverinfo='text',
+                                text=list(df_bouts.index),
+                                line_color=palette[category]),
+                      row=2, col=1)
+
+        fig.add_trace(go.Violin(y=df_bouts['Min_Bend_Amp'][df_bouts['category'] == category],
+                                x=df_bouts['category'][df_bouts['category'] == category],
+                                points='all',
+                                hoverinfo='text',
+                                text=list(df_bouts.index),
+                                line_color=palette[category]),
+                      row=2, col=1)
+
+        fig.add_trace(go.Violin(y=df_bouts['Integral_TA'][df_bouts['category'] == category],
+                                x=df_bouts['category'][df_bouts['category'] == category],
+                                points='all',
+                                hoverinfo='text',
+                                text=list(df_bouts.index),
+                                line_color=palette[category]),
+                      row=2, col=2)
+
+        fig.add_trace(go.Violin(y=df_bouts['mean_TBF'][df_bouts['category'] == category],
+                                x=df_bouts['category'][df_bouts['category'] == category],
+                                points='all',
+                                hoverinfo='text',
+                                text=list(df_bouts.index),
+                                line_color=palette[category]),
+                      row=2, col=3)
+
     fig.update_layout(title_text='Kinematics of bouts in each category (based on automatic classification)',
                       showlegend=False)
     fig.update_xaxes(title_text="category", row=1, col=1)
-    plot(fig, filename=output_path + 'fig/' + fishlabel + '/' + trial + '/kinematics_per_cat.html')
-    fig.write_image(output_path + 'fig/' + fishlabel + '/' + trial + '/kinematics_per_cat.png')
+
+    plot(fig, filename=output_path + 'fig/' + fishlabel + '/' + depth + '/kinematics_per_cat'+str(trial)+'.html')
+    fig.write_image(output_path + 'fig/' + fishlabel + '/' + depth + '/kinematics_per_cat'+str(trial)+'.png')
 
 
-def plot_violin_kinematics_class(df_bouts, rows, cols, output_path, fishlabel, trial):
+def plot_violin_kinematics_class(df_bouts, rows, cols, output_path, fishlabel, trial, depth):
     fig = make_subplots(rows=rows, cols=cols,
-                        subplot_titles=("number osc", "bout duration", "abs max bend", "extremes amp", "TA integral", "mean TBF"))
-    fig.add_trace(go.Violin(y=df_bouts['Number_Osc'], x=df_bouts['classification'], points='all'), row=1, col=1)
-    fig.add_trace(go.Violin(y=df_bouts['Bout_Duration'], x=df_bouts['classification'], points='all'), row=1, col=2)
-    fig.add_trace(go.Violin(y=df_bouts['abs_Max_Bend_Amp'], x=df_bouts['classification'], points='all'), row=1, col=3)
-    fig.add_trace(go.Violin(y=df_bouts['Max_Bend_Amp'], x=df_bouts['classification'], points='all'), row=2, col=1)
-    fig.add_trace(go.Violin(y=df_bouts['Min_Bend_Amp'], x=df_bouts['classification'], points='all'), row=2, col=1)
-    fig.add_trace(go.Violin(y=df_bouts['Integral_TA'], x=df_bouts['classification'], points='all'), row=2, col=2)
-    fig.add_trace(go.Violin(y=df_bouts['mean_TBF'], x=df_bouts['classification'], points='all'), row=2, col=3)
-    fig.update_layout(title_text='Kinematics of bouts in each classification (based on automatic classification)',
+                        subplot_titles=("number osc", "bout duration", "abs max bend",
+                                        "extremes amp", "TA integral", "mean TBF"))
+    fig.add_trace(go.Violin(y=df_bouts['Number_Osc'], x=df_bouts['classification'], points='all', hoverinfo='text',
+                            text=list(df_bouts.index)), row=1, col=1)
+    fig.add_trace(go.Violin(y=df_bouts['Bout_Duration'], x=df_bouts['classification'], points='all', hoverinfo='text',
+                            text=list(df_bouts.index)), row=1, col=2)
+    fig.add_trace(go.Violin(y=df_bouts['abs_Max_Bend_Amp'], x=df_bouts['classification'], points='all', hoverinfo='text',
+                            text=list(df_bouts.index)), row=1, col=3)
+    fig.add_trace(go.Violin(y=df_bouts['Max_Bend_Amp'], x=df_bouts['classification'], points='all', hoverinfo='text',
+                            text=list(df_bouts.index)), row=2, col=1)
+    fig.add_trace(go.Violin(y=df_bouts['Min_Bend_Amp'], x=df_bouts['classification'], points='all', hoverinfo='text',
+                            text=list(df_bouts.index)), row=2, col=1)
+    fig.add_trace(go.Violin(y=df_bouts['Integral_TA'], x=df_bouts['classification'], points='all', hoverinfo='text',
+                            text=list(df_bouts.index)), row=2, col=2)
+    fig.add_trace(go.Violin(y=df_bouts['mean_TBF'], x=df_bouts['classification'], points='all', hoverinfo='text',
+                            text=list(df_bouts.index)), row=2, col=3)
+    fig.update_layout(title_text='Kinematics of bouts in each cluster (based on automatic classification)',
                       showlegend=False)
     fig.update_xaxes(title_text="classification", row=1, col=1)
-    plot(fig, filename=output_path + 'fig/' + fishlabel + '/' + trial + '/kinematics_per_class.html')
-    fig.write_image(output_path + 'fig/' + fishlabel + '/' + trial + '/kinematics_per_class.png')
+    plot(fig, filename=output_path + 'fig/' + fishlabel + '/' + depth + '/kinematics_per_class_'+trial+'.html')
+    fig.write_image(output_path + 'fig/' + fishlabel + '/' + depth + '/kinematics_per_class_'+trial+'.png')
 
 
 def data_single_cell_F(cell_num, F_corrected, time_indices):
@@ -192,7 +254,7 @@ def plot_fluo(F_corrected, TA_all, cells_index, time_indices, layout, trial, out
         else:
             data.append(data_single_cell_F(i, F_corrected, time_indices))
     data.append(go.Scatter(name='all', x=TA_all[:, 0],
-                           y=TA_all[:, 1] - 100))
+                           y=zscore(TA_all[:, 1]) - 100))
     fig = go.Figure(data=data, layout=layout)
     plot(fig, output_path + 'Raw_fluo_' + trial + '.html')
 
@@ -206,7 +268,7 @@ def plot_dff(DFF, TA_all, time_indices, cells_index, shift, trial, layout, outpu
             data.append(data_single_cell_dff(i, DFF, time_indices))
     # shift the plot of behavior so it doesn't overlap the calcium signal
     data.append(go.Scatter(name='All bouts ', x=TA_all[:, 0] * shift,
-                           y=TA_all[:, 1] - 30))
+                           y=zscore(TA_all[:, 1]) - 30))
     fig = go.Figure(data=data, layout=layout)
     plot(fig,
          filename=output_path + 'DFF_' + trial + '.html')
@@ -251,12 +313,19 @@ def kinematics_hist_global(df_bouts_all, nFish, nTrials):
     plot(fig, filename='test_kinematics_sum2.html')
 
 
-def scatter_matrix_fish_hue(data, dimensions):
-    fig = px.scatter_matrix(data, dimensions, color='Fishlabel')
+def scatter_matrix_fish_hue(data, dimensions, output_path, fishlabel, depth, trial):
+    fig = px.scatter_matrix(data, dimensions, color='classification', hover_name=data.index)
+    fig.update_layout(title_text='Kinematics of each bouts, color coded by cluster',
+                      plot_bgcolor='lightgrey')
+    fig.update_traces(diagonal_visible=False)
+    plot(fig,
+         filename=output_path + 'fig/' + fishlabel + '/' + depth + '/kinematics_per_class_' + trial + '.html',
+         auto_open=False)
+    fig.write_image(output_path + 'fig/' + fishlabel + '/' + depth + '/kinematics_per_class_' + trial + '.png')
 
 
-def pairplot(data, hue):
-    sns.pairplot(data, hue="category", size=3)
+def pairplot(data, hue='classification'):
+    sns.pairplot(data, hue=hue, height=3)
 
 
 def kinematics_strip(df_bouts_all):
@@ -330,3 +399,43 @@ def kdeplot_all_params(df_bouts_all, params):
         sns.FacetGrid(df_bouts_all, hue="category", size=6) \
             .map(sns.kdeplot, "Number_Osc") \
             .add_legend()
+
+
+def cluster_stacked_tailAngle(df_bout, df_frame, cluster_represented, colors, max_bout_duration, fps_beh):
+    fig = make_subplots(rowsplot_viol=len(cluster_represented), cols=1,
+                        subplot_titles=(['Cluster ' + i for i in get_unique_elements(df_bout['classification'])]))
+    for i, cluster in enumerate(cluster_represented):
+        plt.subplot(len(cluster_represented), 1, i + 1)
+        color = colors[int(cluster)]
+        for bout in list(df_bout[df_bout['classification'] == cluster].index):
+            start = df_bout.BoutStartVideo[bout]
+            end = start + int(max_bout_duration * fps_beh)
+            try:
+                plt.plot(range(0, end - start), df_frame.Tail_angle[start:end], color=color,
+                         label=classification)
+            except ValueError:
+                # Bout cannot be extended since it's the last one of the trace, we will fill with NaN
+                to_fill = len(range(0, end - start)) - len(df_frame.Tail_angle[start:end])
+                tail_angle = list(df_frame.Tail_angle[start:end]) + [0] * to_fill
+                plt.plot(range(0, end - start), tail_angle, color=color,
+                         label=classification)
+            plt.ylim(-120, 120)
+        plt.title('Cluster ' + str(cluster))
+        if i == 0:
+            plt.ylabel('Tail angle [°]')
+        if i == len(cluster_represented):
+            plt.xlabel('Time (s)')
+            plt.ylabel('Tail angle [°]')
+
+
+def draft_TA():
+    plt.figure()
+    x_range = df_frame.Time_index[start:end]-df_frame.Time_index[start]
+    x_range2 = df_frame.Time_index[start:end]-df_frame.Time_index[start]
+    plt.plot(x_range, df_frame.Tail_angle[start:end], color=color)
+    plt.ylim(-120, 120)
+    plt.xlim(0,0.8)
+    plt.xlabel('Time [s]')
+    plt.ylabel('Tail angle [°]')
+    plt.plot(x_range2, df_frame.Bend_Amplitude[start:end],
+             'rx', markersize=1.5)
