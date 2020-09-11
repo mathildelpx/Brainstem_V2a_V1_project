@@ -1,5 +1,6 @@
 import os, datetime
 import pandas as pd
+from tools.list_tools import *
 
 
 class Exp:
@@ -19,13 +20,13 @@ class Exp:
         fishinfo = csv_file[csv_file['Fishlabel'] == fishlabel]
 
         # number of planes taken for this fish
-        nPlanes = 0
-        try:
-            for i in os.listdir(path):
-                if os.path.isdir(os.path.join(path, i)):
-                    nPlanes += 1
-        except FileNotFoundError:
-            nPlanes = int(fishinfo['nPlanes'])
+        nPlanes = len(get_unique_elements(fishinfo['Depth']))
+        # try:
+        #     for i in os.listdir(path):
+        #         if os.path.isdir(os.path.join(path, i)):
+        #             nPlanes += 1
+        # except FileNotFoundError:
+        #     nPlanes = int(fishinfo['nPlanes'])
         print('Nplanes is ', nPlanes)
         a = str(input('Ok ? press anything for no'))
         if a:
@@ -33,7 +34,7 @@ class Exp:
         self.nPlanes = nPlanes
 
         # frame rate of behavior acquisition
-        fps_beh = fishinfo['FrameRateCamera']
+        fps_beh = fishinfo['FrameRateCamera'].iloc[0]
         print('fps behavior is ', int(fps_beh))
         a = str(input('Ok ? press anything for no'))
         if a:
@@ -41,7 +42,7 @@ class Exp:
         self.fps_beh = float(fps_beh)
 
         # frame rate of 2P acquisition
-        fps_2p = fishinfo['FrameRate2P']
+        fps_2p = fishinfo['FrameRate2P'].iloc[0].replace(',','.')
         try:
             print('fps 2p is ', float(fps_2p))
             a = str(input('Ok ? press anything for no'))
