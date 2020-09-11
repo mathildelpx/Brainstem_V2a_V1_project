@@ -23,14 +23,13 @@ class NoBehavior(Exception):
 
 ####################################################################################################
 
-fishlabel = '190104_F2'
-trial = '8'
-shift = 1
+fishlabel = '200813_F1'
+depth = '160um'
 output_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/ML_pipeline_output/'
 data_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/suite2p_output/'
 reanalyze = False
 
-analysis_log = load_analysis_log(output_path, fishlabel, trial)
+analysis_log = load_analysis_log(output_path, fishlabel, depth)
 experiment = load_experiment(output_path, fishlabel)[0]
 # experiment = experiment[0]
 
@@ -40,7 +39,7 @@ for foldername in ['dataset', 'fig', 'np_array', 'csv_files']:
     except FileExistsError:
         pass
     try:
-        os.mkdir(output_path + foldername + '/' + fishlabel + '/' + trial + '/')
+        os.mkdir(output_path + foldername + '/' + fishlabel + '/' + depth + '/')
     except FileExistsError:
         pass
 
@@ -52,9 +51,9 @@ analysis_log['date_analysis'] = time.strftime("%d/%m/%Y")
 
 ############################################################################
 # Load outputs from suite2P
-F, Fneu, spks, stat, ops, iscell = load_suite2p_outputs(fishlabel, trial, data_path)
+F, Fneu, spks, stat, ops, iscell = load_suite2p_outputs(fishlabel, depth, data_path)
 # load output struct if exisiting
-output_struct = load_output_struct(fishlabel, trial, output_path+'dataset/', data_path)
+output_struct = load_output_struct(fishlabel, depth, output_path+'dataset/', data_path)
 
 nFrames, nROIs = output_struct['nFrames'], output_struct['nROI']
 # create time points to plot everything according to time and not frame index.
@@ -64,20 +63,23 @@ time_indices = [frame*(1/fps_2p) for frame in range(nFrames)]
 ##### CORRECT FLUORESCENCE
 
 # Define automatic detection of motion artifact: on what parameter do you rely ?
-condition_movement = ops['xoff'] > np.percentile(ops['xoff'], 3)
+condition_movement = ops['xoff'] < np.percentile(ops['xoff'], 2)
 bad_frames = np.where(condition_movement)
 
-F_corrected, cells_index, del_frames = correct_2p_outputs(fishlabel, trial, output_path, bad_frames, reanalyze,
-                                                          analysis_log)
+F_corrected, cells_index, del_frames = correct_2p_outputs(fishlabel, depth, output_path, bad_frames, reanalyze,
+                                                          analysis_log, data_path)
 
 analysis_log['removed_frames'] = del_frames
-analysis_log['condition_ma'] = "ops['xoff'] > np.percentile(ops['xoff'], 3)"
+analysis_log['condition_ma'] = "ops['xoff'] > np.percentile(ops['xoff'], 2)"
 
 
 ###### DFF CALCULATION
 
 # Load behavior
-df_bouts, TA_all = load_behavior(fishlabel, trial, output_path)
+# df_bouts, TA_all = load_behavior(fishlabel, trial, output_path)
+TA_all = np.load(output_path+'np_array/'+fishlabel+'/'+depth+'/overall_ta.npy')
+with open(output_path + 'dataset/' + fishlabel + '/df_bout_plane_' + depth, 'rb') as f:
+    df_bouts = pickle.load(f)
 
 # Layout for the figure of fluorescence
 layout_F = (go.Layout(title=go.layout.Title(text='Corrected fluo over time', x=0),
@@ -87,15 +89,15 @@ layout_F = (go.Layout(title=go.layout.Title(text='Corrected fluo over time', x=0
 
 # Try to load DFF and threshold list if already analyzed.
 try:
-    DFF = np.load(output_path + 'np_array/' + fishlabel + '/' + trial + '/DFF_' + trial + '.npy')
-    noise = np.load(output_path + 'np_array/' + fishlabel + '/' + trial + '/noise_' + trial + '.npy')
+    DFF = np.load(output_path + 'np_array/' + fishlabel + '/' + depth + '/DFF_' + depth + '.npy')
+    noise = np.load(output_path + 'np_array/' + fishlabel + '/' + depth + '/noise_' + depth + '.npy')
     print('Loading existing DFF and noise')
     if reanalyze: raise ReAnalyze
 # If not existing, calculate it.
 except (FileNotFoundError, ReAnalyze):
     print('Calculating DFF and noise')
     print('Plotting corrected fluorescence...')
-    plot_fluo(F_corrected, TA_all, cells_index, time_indices, layout_F, trial, output_path)
+    plot_fluo(F_corrected, TA_all, cells_index, time_indices, layout_F, depth, output_path)
 
     # if analysis already contains defined limits, asks user if wants to reuse it or define new ones.
     if analysis_log['baseline_lim'] != (np.nan, np.nan):
@@ -119,8 +121,8 @@ except (FileNotFoundError, ReAnalyze):
     noise = calc_noise(DFF, cells_index, analysis_log)
 
     # save
-    np.save(output_path + 'np_array/' + fishlabel + '/' + trial + '/DFF_' + trial + '.npy', DFF)
-    np.save(output_path + 'np_array/' + fishlabel + '/' + trial + '/noise_' + trial + '.npy',
+    np.save(output_path + 'np_array/' + fishlabel + '/' + depth + '/DFF_' + depth + '.npy', DFF)
+    np.save(output_path + 'np_array/' + fishlabel + '/' + depth + '/noise_' + depth + '.npy',
             noise)
 
 
@@ -130,7 +132,8 @@ layout_DFF = (go.Layout(title =go.layout.Title(text='Delta fluo over time', x=0)
                         xaxis= go.layout.XAxis(title='Time', showgrid=False, zeroline=False)))
 
 # plot dff
-plot_dff(DFF, TA_all, time_indices, cells_index, shift, trial, layout_DFF, output_path)
+# TODO: remove the shift from this function
+plot_dff(DFF, TA_all, time_indices, cells_index, 1, depth, layout_DFF, output_path)
 
 # DFF is an array of shape (number of cells, number of frames)
 # transpose the DFF array so the format is compatible with matplotlib library which plots columns as a function of rows
@@ -142,7 +145,6 @@ plt.plot(time_indices, DFF_T)
 plt.title('raw DFF of all ROIs')
 
 # Load everything in a big structure
-output_struct['shift'] = shift
 output_struct['F_corrected'] = F_corrected
 output_struct['DFF'] = DFF
 output_struct['cells_index'] = cells_index
@@ -160,10 +162,10 @@ for cell in cells_index:
 output_struct['signal_noise'] = signal2noise
 
 # Save analysis log and output structure
-with open(output_path + 'logs/' + fishlabel + '_' + trial + '_analysis_log', 'wb') as fp:
+with open(output_path + 'logs/' + fishlabel + '_' + depth + '_analysis_log', 'wb') as fp:
     pickle.dump(analysis_log, fp)
     print('Analysis log was saved in', fp.name)
-with open(output_path + 'dataset/' + fishlabel + '/' + trial + '/struct', 'wb') as output:
+with open(output_path + 'dataset/' + fishlabel + '/' + depth + '/struct', 'wb') as output:
     pickle.dump(output_struct, output, protocol=pickle.HIGHEST_PROTOCOL)
     print('Output struct was saved in', output.name)
 
@@ -172,7 +174,7 @@ with open(output_path + 'dataset/' + fishlabel + '/' + trial + '/struct', 'wb') 
 ###### Filter DF/F
 
 time_indices = np.array(time_indices)
-bouts = load_bout_object(output_path, fishlabel, trial)
+bouts = load_bout_object(output_path, fishlabel, depth)
 
 
 def filtering_analysis(windows, cells_interest):
@@ -189,10 +191,10 @@ def filtering_analysis(windows, cells_interest):
         ax2.set_title('Run avg ' + str(window))
         ax2.set_ylabel('Filtered DF/F')
         plt.savefig(output_path + 'fig/' + fishlabel +
-                    '/' + trial + '/rawVSfilter_' + 'run_avg' + '_' + str(window),
+                    '/' + depth + '/rawVSfilter_' + 'run_avg' + '_' + str(window),
                     format='png')
         with open(output_path + 'fig/' + fishlabel +
-                  '/' + trial + '/pickle_rawVSfilter_' + 'run_avg' + '_' + str(window), 'wb') as fp:
+                  '/' + depth + '/pickle_rawVSfilter_' + 'run_avg' + '_' + str(window), 'wb') as fp:
             pickle.dump(fig, fp, protocol=pickle.HIGHEST_PROTOCOL)
 
         fig3 = plt.figure('All windows per cells')
@@ -207,10 +209,10 @@ def filtering_analysis(windows, cells_interest):
         plt.subplots_adjust(hspace=0.35)
         plt.legend(bbox_to_anchor=(1.1, 1.05), ncol=1)
         plt.savefig(output_path + 'fig/' + fishlabel +
-                    '/' + trial + '/filtered_dff_run_avg_test_cells',
+                    '/' + depth + '/filtered_dff_run_avg_test_cells',
                     format='png')
         with open(output_path + 'fig/' + fishlabel +
-                    '/' + trial + '/pickle_runavg_test', 'wb') as fp:
+                    '/' + depth + '/pickle_runavg_test', 'wb') as fp:
             pickle.dump(fig3, fp, protocol=pickle.HIGHEST_PROTOCOL)
     plt.show()
     return cells_interest
@@ -257,10 +259,10 @@ def final_filtering(chosen_window):
         ax12.plot(noise_b_filter, [e * 2 for e in noise_b_filter], label='2*noise')
         ax12.legend()
         fig1.savefig(output_path + 'fig/' + fishlabel +
-                     '/' + trial + '/signal2noise_runavg_' + str(window),
+                     '/' + depth + '/signal2noise_runavg_' + str(window),
                      format='png')
         with open(output_path + 'fig/' + fishlabel +
-                  '/' + trial + '/pickle_signal2noise_runavg'+str(window), 'wb') as fp:
+                  '/' + depth + '/pickle_signal2noise_runavg'+str(window), 'wb') as fp:
             pickle.dump(fig1, fp, protocol=pickle.HIGHEST_PROTOCOL)
         plt.show()
     filtered_dff, filtered_noise = run_avg_filter(DFF, noise, chosen_window, cells_index, analysis_log)
@@ -326,10 +328,10 @@ output_struct['filtered_noise'] = filtered_noise
 output_struct['chosen_window'] = chosen_window
 
 # Save config file and output structure
-with open(output_path + 'logs/' + fishlabel + '_' + trial + '_analysis_log', 'wb') as fp:
+with open(output_path + 'logs/' + fishlabel + '_' + depth + '_analysis_log', 'wb') as fp:
     pickle.dump(analysis_log, fp)
     print('Analysis log was saved in', fp.name)
-with open(output_path + 'dataset/' + fishlabel + '/' + trial + '/struct', 'wb') as output:
+with open(output_path + 'dataset/' + fishlabel + '/' + depth + '/struct', 'wb') as output:
     pickle.dump(output_struct, output, protocol=pickle.HIGHEST_PROTOCOL)
     print('Output struct was saved in', output.name)
 

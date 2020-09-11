@@ -12,7 +12,7 @@ from utils.plotting import *
 
 pd.options.mode.chained_assignment = None
 
-fishlabel = '190515_F2'
+fishlabel = '200813_F1'
 output_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/ML_pipeline_output/'
 classification_path = '/home/mathilde.lapoix/Bureau/boutsClusteringMathilde/mathildeFinal/output_dataframe'
 

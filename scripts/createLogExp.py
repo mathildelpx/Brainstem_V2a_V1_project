@@ -4,10 +4,10 @@ import pickle
 from utils.class_lib import Exp
 
 
-fishlabel = '190220_F2'
+fishlabel = '200813_F1'
 
-data_path = '/network/lustre/iss01/wyart/rawdata/2pehaviour/' + fishlabel + '/Calcium_imaging/'
-csv_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/summaryData_MartinMathilde.csv'
+data_path = '/network/lustre/iss01/wyart/rawdata/2pehaviour/' + fishlabel + '/2P/'
+csv_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/summaryDataFinal.csv'
 save_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/ML_pipeline_output/exps/'
 
 experiment = pd.Series(Exp(data_path, fishlabel, csv_path))

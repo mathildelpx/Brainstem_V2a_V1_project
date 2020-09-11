@@ -8,13 +8,28 @@ import pickle
 from utils import functions_ZZ_extraction as fct
 from utils.import_data import *
 
-fishlabel = '190220_F2'
+
+fishlabel = '200813_F1'
 output_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/ML_pipeline_output/'
 raw_data_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/ZZ_output/'
+summary_file_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/summaryDataFinal.csv'
+
+
 # As we use the code used for experiments of multiple wells,
 # we have to call the first well (only one in the experiments
 # for which this script was written.
 numWell = 0
+
+#   Read the summary csv file with info on all files stored.
+try:
+    summary_file = pd.read_csv(summary_file_path,
+                               header=0)
+except FileNotFoundError:
+    print('The path to the summary file is not valid.')
+    quit()
+
+summary_fish = summary_file[summary_file['Fishlabel'] == fishlabel]
+nFiles = len(summary_fish)
 
 # load parameters of experiment
 try:
@@ -30,7 +45,8 @@ trials_files.sort()
 print(trials_files)
 
 # Create folders to store analysis
-analysis_log = fct.create_analysis_env(output_path, fishlabel)
+fct.create_analysis_env(output_path, fishlabel)
+analysis_log = fct.create_analysis_log()
 
 pd.options.mode.chained_assignment = None
 
