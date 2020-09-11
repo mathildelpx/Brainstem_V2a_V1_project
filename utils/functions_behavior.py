@@ -9,13 +9,12 @@ def find_indices(lst, condition):
     return [i for i, elem in enumerate(lst) if condition(elem)]
 
 
-def get_classification(bouts, classification_df):
+def get_classification(bouts, classification_df, missing_class=4):
     """
     Loads the classification attributed to each bout.
     """
     classification = bouts.copy()
     print('nb of clusters:', np.nanmax(classification_df['classification']))
-    missing_class = 4
     # missing_class = int(input('How to flag the bouts with missing clustering (excluded bouts)'))
     for bout in bouts:
         df_single_bout = classification_df[classification_df['NumBout'] == float(bout)]
@@ -28,7 +27,7 @@ def get_classification(bouts, classification_df):
     return classification
 
 
-def decisive_bend(bout_num, df_bout, df_frame, ):
+def decisive_bend(bout_num, df_bout, df_frame):
     """
     Way to determine if a bout was located towards the right or the left side.
     Will be used in the function auto_side.
@@ -39,13 +38,14 @@ def decisive_bend(bout_num, df_bout, df_frame, ):
     :param bout_num: Bout number
     :param df_bout: DataFrame object with parameters of each bout
     :param df_frame: DataFrame object with parameters of each frame
+
     :return: Value of the highest bend whithin the 4 first of a bout.
     """
     bout_start = df_bout.BoutStartVideo[bout_num]
     bout_end = df_bout.BoutEndVideo[bout_num]
     bend_indices = find_indices(df_frame.Bend_Amplitude[bout_start:bout_end], lambda e: math.isnan(e) is False)
-    max_bend = df_frame.Bend_Amplitude[[x + bout_start for x in bend_indices[0:4]]].max()
-    min_bend = df_frame.Bend_Amplitude[[x + bout_start for x in bend_indices[0:4]]].min()
+    max_bend = np.nanmax(df_frame.Bend_Amplitude[[x + bout_start for x in bend_indices[0:4]]])
+    min_bend = np.nanmin(df_frame.Bend_Amplitude[[x + bout_start for x in bend_indices[0:4]]])
     print('bout', bout_num)
     if abs(max_bend) > abs(min_bend):
         decisive_bend = max_bend
@@ -56,7 +56,6 @@ def decisive_bend(bout_num, df_bout, df_frame, ):
 
 
 def auto_side(bout_num, df_bout, df_frame, thresh):
-    # TODO check if the value 15 as threshold stil works here. Maybe I can decrease it.
     """
     Calculates automatically the side towards which a bout was directed, using decisive_bend.
 
@@ -79,7 +78,10 @@ def auto_side(bout_num, df_bout, df_frame, thresh):
     elif decisive_bend(bout_num, df_bout, df_frame) < -thresh:
         output = 'R'
     else:
-        output = 0
+        output = 'F'
+        print('bout', bout_num)
+        print('Warning: was categorized as turns, but max amplitude of bout is below', thresh)
+        print('Bout was removed from TURN and tagged as FORWARD')
     return output
 
 
@@ -104,13 +106,51 @@ def replace_category(bout, df_bouts, df_frame, thresh):
         str_cat = 'F'
     elif cat == 0:
         str_cat = auto_side(bout, df_bouts, df_frame, thresh)
-        if str_cat == 0:
-            print('bout', bout)
-            print('Warning: was categorized as turns, but max amplitude of bout is below', thresh)
-            print('check angle trace.')
-            str_cat = np.nan
     elif cat == 2:
         str_cat = 'O'
+    else:
+        str_cat = 'Exc'
+    return str_cat
+
+
+def replace_category2(bout, df_bouts, df_frame, thresh, struggle_lim):
+    """
+    This function reads, for a specified bout, the category it was given by the bout clustering (a int)
+    and replaces it with a user readable format: F (forward), L (left turn), R (right turn), O (others).
+
+    It is based on how the clustering works at the time where this function is written, and could require some
+    rewriting if the clustering doesn't give categories with the same number.
+
+    This one works with a clustering based on 2 clusters. You end up with
+
+    Cat 0 corresponds to forward
+    Cat 1 corresponds to turns: in order to determine if it was left or right turn, the function calls function
+    auto_side.
+    Cat 2 corresponds to all the bouts that were flagged, therefore not put in cluster.
+    If a bout was not classified, the resulting category is NaN.
+
+    :return the str category of the given bout.
+    """
+    cat = df_bouts.classification[bout]
+    if cat == 0:
+        if abs(df_bouts.Max_Bend_Amp[bout]) > struggle_lim:
+            str_cat = 'S'
+            print('Bout was categorized as forward, but max amplitude was higher than:', struggle_lim)
+            print('Excluded from F and tagged as STRUGGLE')
+        else:
+            str_cat = 'F'
+    elif cat == 1:
+        if abs(df_bouts.Max_Bend_Amp[bout]) > struggle_lim:
+            str_cat = 'S'
+            print('Bout was categorized as turn, but max amplitude was higher than:', struggle_lim)
+            print('Excluded from TURNS and tagged as STRUGGLE')
+        else:
+            str_cat = auto_side(bout, df_bouts, df_frame, thresh)
+            if str_cat == 0:
+                print('bout', bout)
+                print('Warning: was categorized as turns, but max amplitude of bout is below', thresh)
+                print('check angle trace.')
+                str_cat = np.nan
     else:
         str_cat = 'Exc'
     return str_cat
