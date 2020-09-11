@@ -38,6 +38,14 @@ def load_behavior_dataframe(fishlabel, trial, path):
     bout_dataset = pd.read_pickle(
         path + 'dataset/' + fishlabel + '/' + trial + '/analyzed_bout_dataset')
     return frame_dataset, bout_dataset
+
+
+def load_behavior_dataframe_plane(fishlabel, depth, path):
+
+    df_frame_plane = pd.read_pickle(path + 'dataset/' + fishlabel + '/df_frame_plane_' + depth)
+    df_bout_plane = pd.read_pickle(path + 'dataset/' + fishlabel + '/df_bout_plane_' + depth)
+
+    return df_frame_plane, df_bout_plane
     
 
 def load_suite2p_outputs(fishlabel, trial, input_path):

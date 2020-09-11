@@ -17,32 +17,20 @@ def find_indices(lst, condition):
     return [i for i, elem in enumerate(lst) if condition(elem)]
 
 
-def load_2p_output(fishlabel, trial, folder_path=False):
+def load_2p_output(fishlabel, trial, output_path):
     """
     Load every output that the suite2p gives you
     Arguments given are fishlabel, trial and folder_path.
-    If folder_path is not given, automatically check for the data path in the summary csv file.
-    You can change the path to the summary csv file here in the function.
     If folder_path is give,;
     Returns F, Fneu, spks, stat, ops, iscell
     """
-    summary_file_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/summaryData_MartinMathilde.csv'
-    if not folder_path:
-        summary_file = pd.read_csv(summary_file_path,
-                                   header=0,
-                                   index_col=0)
-        summary_fish = summary_file.loc[fishlabel]
-        suite2p_path = summary_fish['AnalyzedDataPath_suite2p']
-    else:
-        suite2p_path = folder_path
-    print('suite2p data path:', suite2p_path)
-    F = np.load(suite2p_path + '/' + trial + '/suite2p/plane0' + '/F.npy', allow_pickle=True)
-    Fneu = np.load(suite2p_path + '/' + trial + '/suite2p/plane0' + '/Fneu.npy', allow_pickle=True)
-    spks = np.load(suite2p_path + '/' + trial + '/suite2p/plane0' + '/spks.npy', allow_pickle=True)
-    stat = np.load(suite2p_path + '/' + trial + '/suite2p/plane0' + '/stat.npy', allow_pickle=True)
-    ops = np.load(suite2p_path + '/' + trial + '/suite2p/plane0' + '/ops.npy', allow_pickle=True)
+    F = np.load(output_path + fishlabel + '/' + trial + '/suite2p/plane0' + '/F.npy', allow_pickle=True)
+    Fneu = np.load(output_path + fishlabel + '/' + trial + '/suite2p/plane0' + '/Fneu.npy', allow_pickle=True)
+    spks = np.load(output_path + fishlabel + '/' + trial + '/suite2p/plane0' + '/spks.npy', allow_pickle=True)
+    stat = np.load(output_path + fishlabel + '/' + trial + '/suite2p/plane0' + '/stat.npy', allow_pickle=True)
+    ops = np.load(output_path + fishlabel + '/' + trial + '/suite2p/plane0' + '/ops.npy', allow_pickle=True)
     ops = ops.item()
-    iscell = np.load(suite2p_path + '/' + trial + '/suite2p/plane0' + '/iscell.npy', allow_pickle=True)
+    iscell = np.load(output_path + fishlabel + '/' + trial + '/suite2p/plane0' + '/iscell.npy', allow_pickle=True)
     print('successfully loaded 2P data')
     return F, Fneu, spks, stat, ops, iscell
 
@@ -96,7 +84,7 @@ def correct_motion_artifact(F_corrected, cells_index, bad_frames):
     return F_corrected, del_frames
 
 
-def correct_2p_outputs(fishlabel, trial, output_path, bad_frames, reanalyze, analysis_log):
+def correct_2p_outputs(fishlabel, trial, output_path, bad_frames, reanalyze, analysis_log, data_path):
     """
     Loads outputs from the 2psuite analysis of calcium signal
 
@@ -119,7 +107,7 @@ def correct_2p_outputs(fishlabel, trial, output_path, bad_frames, reanalyze, ana
             raise ReAnalyze
     # IF not, correct it with the function 'correct_2p_outputs'
     except (FileNotFoundError, ReAnalyze):
-        F, Fneu, spks, stat, ops, iscell = load_2p_output(fishlabel, trial)
+        F, Fneu, spks, stat, ops, iscell = load_2p_output(fishlabel, trial, data_path)
         nROIs, nFrames = F.shape
         print('Number of ROIs: ', nROIs)
         print('Number of frames: ', nFrames)

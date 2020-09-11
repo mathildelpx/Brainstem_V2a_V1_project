@@ -48,7 +48,7 @@ def create_analysis_env(output_path, fishlabel):
 def create_analysis_log():
     analysis_log = {'depth': np.nan,
                     'filename': np.nan,
-                    'index': np.nan,
+                    'trial': np.nan,
                     'n_bouts': np.nan,
                     'condition_ma': np.nan,
                     'removed_frames': [np.nan],
