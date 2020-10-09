@@ -1,12 +1,13 @@
-import numpy as np
-import pandas as pd
-import os
-import math
 import time
 import random
+import numpy as np
+
 import matplotlib.pyplot as plt
-from utils.plotting import *
-from utils.import_data import *
+import sys
+sys.path.insert(1, '../utils/')
+sys.path.insert(1, '../tools/')
+from plotting import *
+from import_data import *
 
 
 class ReAnalyze(Exception):

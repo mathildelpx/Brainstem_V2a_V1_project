@@ -1,18 +1,17 @@
-import os
+import sys
 import base64
-import math
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import zscore
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
-from utils.get_kinematics import get_frames_time_points, tau_calculation
-from utils.import_data import load_output_struct, load_suite2p_outputs, load_config_file
+sys.path.insert(1, '../utils/')
+from import_data import load_output_struct, load_suite2p_outputs, load_config_file
 import plotly.express as px
-from tools.list_tools import *
+sys.path.insert(1, '../tools/')
+from list_tools import *
 
 
 def plot_single_bout_trace(bout, df_frame, df_bout, fq, op):

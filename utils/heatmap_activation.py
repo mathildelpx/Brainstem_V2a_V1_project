@@ -1,11 +1,13 @@
 import numpy as np
 import base64
+import sys
 from matplotlib import cm
 import plotly.graph_objs as go
 from plotly.offline import plot
 from plotly.subplots import make_subplots
-
-from tools.list_tools import *
+sys.path.insert(1, '../utils/')
+sys.path.insert(1, '../tools/')
+from list_tools import *
 
 
 def matplot2plotly_cmap(cmap_type, nsamp=200):

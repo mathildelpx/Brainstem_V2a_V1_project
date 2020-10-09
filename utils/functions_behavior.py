@@ -2,6 +2,8 @@ import math
 import cv2
 import numpy as np
 import pandas as pd
+import sys
+sys.path.insert(1, '../utils/')
 import matplotlib.pyplot as plt
 
 
