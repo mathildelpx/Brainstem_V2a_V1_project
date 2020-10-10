@@ -10,7 +10,7 @@ from utils.import_data import *
 from utils import set_up_env as env
 
 
-fishlabel = '200813_F1'
+fishlabel = '200930_F1'
 output_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/ML_pipeline_output/'
 raw_data_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/ZZ_output/'
 summary_file_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/summaryDataFinal.csv'

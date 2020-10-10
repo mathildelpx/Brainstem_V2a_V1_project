@@ -1,4 +1,6 @@
 import pandas as pd
+import logging
+import time
 from utils.import_data import *
 from utils.load_classified_data import *
 from utils.functions_behavior import *
@@ -12,9 +14,27 @@ fishlabel = '200813_F1'
 output_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/ML_pipeline_output/'
 classification_path = '/home/mathilde.lapoix/Bureau/ZZBehaviorAnalysis/results/megacluster_spont_OMR_N2/'
 summary_file_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/summaryDataFinal.csv'
-
-threshold_turns = 20
+threshold_turns = 30
 threshold_struggle = 85
+
+
+if __name__ == '__main__':
+    try:
+        os.mkdir('../logs/'+fishlabel)
+    except FileExistsError:
+        pass
+
+    logging.basicConfig(filename='../logs/'+fishlabel+'/'+os.path.basename(__file__)+'.log',
+                        level=logging.DEBUG)
+    logging.info('Analysing fish' + fishlabel)
+    logging.info('Summary file used: ' + summary_file_path)
+    logging.info('output path used: ' + output_path)
+    logging.info('classification file used: ' + classification_path)
+    logging.info('Time at which this log started: ' + time.strftime())
+    logging.info('Threshold turns additionally added: ' + threshold_turns)
+    logging.info('Threshold struggle additionally added: ' + threshold_struggle)
+
+
 
 
 try:

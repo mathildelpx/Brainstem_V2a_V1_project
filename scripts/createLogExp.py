@@ -3,8 +3,7 @@ import pandas as pd
 import pickle
 from utils.class_lib import Exp
 
-
-fishlabel = '200813_F1'
+fishlabel = '200930_F1'
 
 data_path = '/network/lustre/iss01/wyart/rawdata/2pehaviour/' + fishlabel + '/2P/'
 csv_path = '/network/lustre/iss01/wyart/analyses/2pehaviour/summaryDataFinal.csv'

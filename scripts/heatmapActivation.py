@@ -3,6 +3,7 @@ import pandas as pd
 import pickle
 from utils.functions_calcium_analysis import *
 from utils.plotting import *
+from utils.import_data import *
 from utils.heatmap_activation import *
 from tools.list_tools import *
 

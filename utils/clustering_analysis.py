@@ -6,6 +6,12 @@ import plotly.express as px
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
+import logging
+
+
+def print_ma(stuff):
+    logging.info('Printing this stuff yeah')
+    print('This thing wil not be logged:', stuff)
 
 
 def new_df_cluster(df_long, nbFrames, fishOfInterest):

@@ -1,13 +1,9 @@
 import time
 import random
 import numpy as np
-
 import matplotlib.pyplot as plt
-import sys
-sys.path.insert(1, '../utils/')
-sys.path.insert(1, '../tools/')
-from plotting import *
-from import_data import *
+from utils.plotting import *
+from utils.import_data import *
 
 
 class ReAnalyze(Exception):

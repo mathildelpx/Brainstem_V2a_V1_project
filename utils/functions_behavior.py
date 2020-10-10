@@ -2,8 +2,6 @@ import math
 import cv2
 import numpy as np
 import pandas as pd
-import sys
-sys.path.insert(1, '../utils/')
 import matplotlib.pyplot as plt
 
 
@@ -190,8 +188,8 @@ class Bout:
         self.num_osc = df_bouts.Number_Osc[number]
         self.duration = df_bouts.Bout_Duration[number]
         self.max = df_bouts.Max_Bend_Amp[number]
-        self.start = df_bouts.BoutStartVideo[number]
-        self.end = df_bouts.BoutEndVideo[number]
+        self.start = df_bouts.BoutStart_summed[number]
+        self.end = df_bouts.BoutEnd_summed[number]
         self.ta = df_frames.Tail_angle[self.start:self.end]
         self.bends = df_frames.Bend_Amplitude[self.start:self.end]
 
@@ -233,9 +231,9 @@ class Bout:
     # TODO: think about other functions to add to this class.
 
 
-def create_bout_objects(df_bouts, df_frames, outputpath):
+def create_bout_objects(df_bouts, df_frames, output_path):
     """Creates a pandas Series with Bout object for each bout of the df_bouts.
     Saves it in pickle format in the desired direction."""
     bouts = pd.Series([Bout(df_bouts, df_frames, i) for i in df_bouts.index])
-    bouts.to_pickle(outputpath + 'bouts')
+    bouts.to_pickle(output_path + 'bouts')
     return bouts
