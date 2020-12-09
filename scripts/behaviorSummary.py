@@ -82,7 +82,7 @@ def trialsDifExample(fishlabel):
 
 sns.stripplot(x='fishlabel', y='nBouts', data=df_summary)
 sns.stripplot(x='fishlabel', y='boutRate', data=df_summary, jitter=True)
-plt.ylabel('Bout Rate [Hz]')
+plt.ylabel('Bout Rate [bouts/min]')
 plt.title('Bout Rate (number of bouts/min) in the different trials of different fish')
 
 kinematics_hist_global(df_bouts_all, nFish, nTrials)
