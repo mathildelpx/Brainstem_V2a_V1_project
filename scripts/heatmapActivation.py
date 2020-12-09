@@ -25,6 +25,9 @@ experiment = load_experiment(output_path, fishlabel)[0]
 
 with open(output_path + 'dataset/' + fishlabel + '/df_frame_plane_' + depth, 'rb') as f:
     df_frame = pickle.load(f)
+with open(output_path + 'dataset/' + fishlabel + '/df_bout_plane_' + depth, 'rb') as f:
+    df_bouts = pickle.load(f)
+
 
 fps_2p = experiment.fps_2p
 fps_beh = experiment.fps_beh
@@ -35,7 +38,7 @@ F_corrected, DFF = output_struct['F_corrected'], output_struct['DFF']
 cells_index, noise = output_struct['cells_index'], output_struct['noise']
 time_indices = np.array(output_struct['time_indices'])
 signal2noise = output_struct['signal_noise']
-TA_all, df_bouts = output_struct['TA_all'], output_struct['df_bouts']
+TA_all = output_struct['TA_all']
 F = output_struct['F']
 Fneu = output_struct['Fneu']
 spks = output_struct['spks']
