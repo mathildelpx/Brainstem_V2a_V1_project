@@ -5,9 +5,7 @@ from matplotlib import cm
 import plotly.graph_objs as go
 from plotly.offline import plot
 from plotly.subplots import make_subplots
-sys.path.insert(1, '../utils/')
-sys.path.insert(1, '../tools/')
-from list_tools import *
+from tools.list_tools import *
 
 
 def matplot2plotly_cmap(cmap_type, nsamp=200):

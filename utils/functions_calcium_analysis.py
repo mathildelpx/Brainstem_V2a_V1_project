@@ -1,9 +1,16 @@
 import time
 import random
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
-from utils.plotting import *
-from utils.import_data import *
+try:
+    from utils.plotting import *
+    from utils.import_data import *
+except ModuleNotFoundError:
+    sys.path.insert(1, '../utils/')
+    sys.path.insert(1, '../tools/')
+    from utils.plotting import *
+    from utils.list_tools import *
 
 
 class ReAnalyze(Exception):
