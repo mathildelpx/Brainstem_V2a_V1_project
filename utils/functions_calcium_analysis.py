@@ -39,6 +39,53 @@ def load_2p_output(fishlabel, trial, output_path):
     return F, Fneu, spks, stat, ops, iscell
 
 
+def load_2p_output_volume(fishlabel, trial, output_path, nPlanes):
+    """
+    Load every output that the suite2p gives you
+    Arguments given are fishlabel, trial and folder_path.
+    If folder_path is give,;
+    Returns F, Fneu, spks, stat, ops, iscell
+    """
+    dict_F = {}
+    dict_Fneu = {}
+    dict_stat = {}
+    dict_ops = {}
+    dict_iscell = {}
+    for plane in range(nPlanes):
+        F = np.load(output_path + fishlabel + '/' + trial + '/suite2p/plane' +str(plane) + '/F.npy', allow_pickle=True)
+        Fneu = np.load(output_path + fishlabel + '/' + trial + '/suite2p/plane' +str(plane) + '/Fneu.npy', allow_pickle=True)
+        spks = np.load(output_path + fishlabel + '/' + trial + '/suite2p/plane' +str(plane) + '/spks.npy', allow_pickle=True)
+        stat = np.load(output_path + fishlabel + '/' + trial + '/suite2p/plane' +str(plane) + '/stat.npy', allow_pickle=True)
+        ops = np.load(output_path + fishlabel + '/' + trial + '/suite2p/plane' +str(plane) + '/ops.npy', allow_pickle=True)
+        ops = ops.item()
+        iscell = np.load(output_path + fishlabel + '/' + trial + '/suite2p/plane' +str(plane) + '/iscell.npy', allow_pickle=True)
+        dict_F[str(plane)] = F
+        dict_Fneu[str(plane)] = Fneu
+        dict_stat[str(plane)] = stat
+        dict_ops[str(plane)] = ops
+        dict_iscell[str(plane)] = iscell
+    print('successfully loaded 2P data')
+    return dict_F, dict_Fneu, dict_stat, dict_ops, dict_iscell
+
+
+def load_2p_output_volume_combined(fishlabel, trial, output_path):
+    """
+    Load every output that the suite2p gives you
+    Arguments given are fishlabel, trial and folder_path.
+    If folder_path is give,;
+    Returns F, Fneu, spks, stat, ops, iscell
+    """
+    F = np.load(output_path + fishlabel + '/' + trial + '/suite2p/combined/F.npy', allow_pickle=True)
+    Fneu = np.load(output_path + fishlabel + '/' + trial + '/suite2p/combined/Fneu.npy', allow_pickle=True)
+    spks = np.load(output_path + fishlabel + '/' + trial + '/suite2p/combined/spks.npy', allow_pickle=True)
+    stat = np.load(output_path + fishlabel + '/' + trial + '/suite2p/combined/stat.npy', allow_pickle=True)
+    ops = np.load(output_path + fishlabel + '/' + trial + '/suite2p/combined/ops.npy', allow_pickle=True)
+    ops = ops.item()
+    iscell = np.load(output_path + fishlabel + '/' + trial + '/suite2p/combined/iscell.npy', allow_pickle=True)
+    print('successfully loaded 2P data')
+    return F, Fneu, spks, stat, ops, iscell
+
+
 def correct_motion_artifact(F_corrected, cells_index, bad_frames):
     """
     Exclude from analysis the frames where there was motion artifact in the signal.
